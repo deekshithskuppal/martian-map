@@ -1,6 +1,19 @@
 const toast = document.querySelector("#zoneToast");
 const pins = document.querySelectorAll(".map-pin");
 const statusButton = document.querySelector("#statusButton");
+const apiBase = window.MARTIAN_MAP_API || "http://localhost:4000/api";
+
+async function loadMissionData() {
+  try {
+    const response = await fetch(`${apiBase}/locations`);
+    if (!response.ok) throw new Error(`Locations request failed: ${response.status}`);
+    const { data } = await response.json();
+    document.querySelector(".label-top").textContent = `${data.length} zones mapped`;
+    document.querySelector(".location-copy small").textContent = `${data.length} NASA-linked field records`;
+  } catch (error) {
+    console.warn("Martian Map API unavailable; using static map labels.", error);
+  }
+}
 
 pins.forEach((pin) => {
   pin.addEventListener("click", () => {
@@ -28,3 +41,5 @@ document.querySelectorAll(".map-control").forEach((control) => {
     window.toastTimer = window.setTimeout(() => toast.classList.remove("show"), 2000);
   });
 });
+
+loadMissionData();
